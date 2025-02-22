@@ -1,20 +1,107 @@
+<!DOCTYPE html>
 <html>
-  <body>
-    <div id="sse"></div>
+<head>
+    <title>Chatbot</title>
+    <style>
+        #chat-log {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            white-space: pre-wrap; /* 줄바꿈 처리 추가 */
+        }
+        .user-message {
+            text-align: right;
+            color: blue;
+            margin-bottom: 5px;
+        }
+        .bot-message {
+            text-align: left;
+            color: green;
+            margin-bottom: 5px;
+        }
+        #chat-form {
+            display: flex;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 5px;
+        }
+        #send-button {
+            padding: 5px 10px;
+        }
+        .info-display {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-log"></div>
+    <form id="chat-form">
+        <input type="text" id="user-input" name="message">
+        <button type="submit" id="send-button">Send</button>
+    </form>
+    <div id="info-display" class="info-display"></div>
+
     <script>
-      const eventSource = new EventSource('/says?text=explain quantum computing');
-      const sseDataElement = document.getElementById('sse');
-      
-      eventSource.onmessage = (event) => {
-        console.log('New message:', event.data);
-        sseDataElement.innerHTML += event.data;
-      };
-      
-      eventSource.onerror = (error) => {
-        console.error('Error:', error);
-        sseDataElement.innerHTML += '<br/>Done!';
-        eventSource.close();
-      };    
+        const form = document.getElementById('chat-form');
+        const chatLog = document.getElementById('chat-log');
+        const infoDisplay = document.getElementById('info-display');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const message = document.getElementById('user-input').value;
+            chatLog.innerHTML += `<p class="user-message">You: ${message}</p>`;
+
+            fetch(`/chat?message=${encodeURIComponent(message)}`)
+                .then(response => response.json()) // JSON으로 파싱
+                .then(data => {
+                    if (data && data.response) { // data와 data.response가 존재하는지 확인
+                        const content = data.response;
+                        // 줄바꿈 처리
+                        const formattedContent = content.replace(/\n/g, '<br>');
+                        chatLog.innerHTML += `<p class="bot-message">Bot: ${formattedContent}</p>`;
+
+                        // 정보 표시 업데이트
+                        if (message.includes("내 정보를 정리해서 보여줘")) {
+                            updateInfoDisplay(content);
+                        }
+                        chatLog.scrollTop = chatLog.scrollHeight; // 스크롤 하단으로 이동
+                    } else {
+                        chatLog.innerHTML += `<p class="bot-message">Error: Invalid response format</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    chatLog.innerHTML += `<p class="bot-message">Error: Failed to fetch response</p>`;
+                });
+            document.getElementById('user-input').value = '';
+        });
+
+        function updateInfoDisplay(data) {
+            // 정규 표현식을 사용하여 정보 추출 (예시)
+            const nameMatch = data.match(/이름:\s*([^\n]+)/);
+            const ageMatch = data.match(/나이:\s*(\d+)/);
+            const locationMatch = data.match(/거주지:\s*([^\n]+)/);
+
+            if (nameMatch && ageMatch && locationMatch) {
+                const name = nameMatch[1];
+                const age = ageMatch[1];
+                const location = locationMatch[1];
+
+                infoDisplay.innerHTML = `
+                    <h3>Your Information</h3>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Age:</strong> ${age}</p>
+                    <p><strong>Location:</strong> ${location}</p>
+                `;
+            } else {
+                infoDisplay.innerHTML = `<p>Information not found.</p>`;
+            }
+        }
     </script>
-    </body>  
+</body>
 </html>

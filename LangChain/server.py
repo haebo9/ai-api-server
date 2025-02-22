@@ -1,28 +1,25 @@
-from fastapi import FastAPI, Query
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from sql_chat_model import TranslationModel  # 모델 가져오기
 
-import app_model
+app = FastAPI() # 앱 인스턴스 설정
+model = TranslationModel()  # 모델 인스턴스 생성
 
-app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="static")
 
-model = app_model.AppModel()
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/say")
-def say_app(text: str = Query()):
-    response = model.get_response(text)
-    return {"content" :response.content}
+@app.get("/chat")
+async def chat(message: str, session_id: str = "default_session"):
+    response = await model.chat(message, session_id)
+    return {"response": response}
 
-@app.get("/translate")
-def translate(text: str = Query(), language: str = Query()):
-    response = model.get_prompt_response(language, text)
-    return {"content" :response.content}
-
-@app.get("/says")
-def say_app_stream(text: str = Query()):
-    def event_stream():
-        for message in model.get_streaming_response(text):
-            yield f"data: {message.content}\n\n"
-            
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+@app.get("/translates")
+async def translates(text: str, language: str = "en", session_id: str = "default_thread"):
+    response = await model.translate(text, language, session_id)
+    return {"response": response}
