@@ -1,4 +1,5 @@
 #!/bin/bash
+# github Codespaces(서버) 환경에서 실행
 
 # 시스템 업데이트 및 pip 업그레이드
 echo "$SYSTEM_INSTALL"
