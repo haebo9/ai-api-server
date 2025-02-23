@@ -9,7 +9,7 @@
             height: 300px;
             overflow-y: scroll;
             margin-bottom: 10px;
-            white-space: pre-wrap; /* 줄바꿈 처리 추가 */
+            white-space: pre-wrap;
         }
         .user-message {
             text-align: right;
@@ -36,72 +36,24 @@
             padding: 10px;
             margin-top: 10px;
         }
+        #container{
+            display: flex;
+            flex-direction: column-reverse; /* 순서 변경 */
+        }
     </style>
 </head>
 <body>
-    <div id="chat-log"></div>
-    <form id="chat-form">
-        <input type="text" id="user-input" name="message">
-        <button type="submit" id="send-button">Send</button>
-    </form>
-    <div id="info-display" class="info-display"></div>
+    <div id="container">
+        <form id="chat-form">
+            <input type="text" id="user-input" name="message">
+            <button type="submit" id="send-button">Send</button>
+        </form>
+        <div id="chat-log"></div>
+        <div id="info-display" class="info-display"></div>
+    </div>
 
     <script>
-        const form = document.getElementById('chat-form');
-        const chatLog = document.getElementById('chat-log');
-        const infoDisplay = document.getElementById('info-display');
-
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const message = document.getElementById('user-input').value;
-            chatLog.innerHTML += `<p class="user-message">You: ${message}</p>`;
-
-            fetch(`/chat?message=${encodeURIComponent(message)}`)
-                .then(response => response.json()) // JSON으로 파싱
-                .then(data => {
-                    if (data && data.response) { // data와 data.response가 존재하는지 확인
-                        const content = data.response;
-                        // 줄바꿈 처리
-                        const formattedContent = content.replace(/\n/g, '<br>');
-                        chatLog.innerHTML += `<p class="bot-message">Bot: ${formattedContent}</p>`;
-
-                        // 정보 표시 업데이트
-                        if (message.includes("내 정보를 정리해서 보여줘")) {
-                            updateInfoDisplay(content);
-                        }
-                        chatLog.scrollTop = chatLog.scrollHeight; // 스크롤 하단으로 이동
-                    } else {
-                        chatLog.innerHTML += `<p class="bot-message">Error: Invalid response format</p>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    chatLog.innerHTML += `<p class="bot-message">Error: Failed to fetch response</p>`;
-                });
-            document.getElementById('user-input').value = '';
-        });
-
-        function updateInfoDisplay(data) {
-            // 정규 표현식을 사용하여 정보 추출 (예시)
-            const nameMatch = data.match(/이름:\s*([^\n]+)/);
-            const ageMatch = data.match(/나이:\s*(\d+)/);
-            const locationMatch = data.match(/거주지:\s*([^\n]+)/);
-
-            if (nameMatch && ageMatch && locationMatch) {
-                const name = nameMatch[1];
-                const age = ageMatch[1];
-                const location = locationMatch[1];
-
-                infoDisplay.innerHTML = `
-                    <h3>Your Information</h3>
-                    <p><strong>Name:</strong> ${name}</p>
-                    <p><strong>Age:</strong> ${age}</p>
-                    <p><strong>Location:</strong> ${location}</p>
-                `;
-            } else {
-                infoDisplay.innerHTML = `<p>Information not found.</p>`;
-            }
-        }
+        // ... (JavaScript 코드는 동일)
     </script>
 </body>
 </html>

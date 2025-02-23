@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Query, Response
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from model_sql_chat import ChatModel
@@ -7,18 +7,14 @@ from model_translate import TranslateModel
 import logging
 import json
 
-app = FastAPI() # 앱 인스턴스 설정
+
+# 앱/모델 인스턴스 설정 
+app = FastAPI() 
 chat_model = ChatModel()
 translate_model = TranslateModel()
 
-# model_type = os.environ.get("MODEL_TYPE")
-# if model_type == "chat":# 챗 모델
-#     model = ChatModel()
-# elif model_type == "translate":# 번역 모델
-#     model = TranslateModel()
-# else:
-#     model = ChatModel() # 기본 모델 설정
-
+################ ChatModel ##################
+# ChatModel API 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="static")
 
@@ -30,6 +26,8 @@ async def read_root(request: Request):
 async def chat(message: str, session_id: str = "default_session"):
     response = await chat_model.chat(message, session_id)
     return {"response": response}
+
+################ TranslateModel API ##################
 
 @app.get("/translates")
 async def translates(
@@ -65,7 +63,18 @@ async def translates(
 
     try:
         response = await translate_model.translate(text, language, session_id)
-        return {"original_text": text, "translated_text": response, "target_language": language}
+        return Response(
+            content=json.dumps(
+                {"original_text": text, 
+                 "translated_text": response, 
+                 "target_language": language}, 
+                 ensure_ascii=False,indent=4), 
+                 media_type="application/json")
     except Exception as e:
         logging.error(f"Error in /translates: {e}")
-        return {"error": str(e)}
+        return Response(
+            content=json.dumps(
+                {"error": str(e)}, 
+                ensure_ascii=False, 
+                indent=4), 
+                media_type="application/json")

@@ -18,4 +18,5 @@
     - $ uvicorn main:app --reload
 - sqlite.db : 챗봇 대화의 내용을 저장하는 db 파일
 - test.http : REST Client를 사용하여 서버 GET, POST등의 실행결과 테스트
-- sql_chat_model.py : 챗봇 기능(web)과 번역기능(url)을 가진 모델
+- modle_sql_chat.py : web에서 연속적인 대화가 가능한 챗봇 기능
+- model_translate : url에 변수를 입력하여 변역된 결과를 도출
