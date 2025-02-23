@@ -16,7 +16,7 @@ import logging
 load_dotenv()
 
 # Translation and Chat 
-class TranslationModel:
+class ChatModel:
     class State(TypedDict):
         messages: Annotated[Sequence[BaseMessage], add_messages]
         language: str
@@ -29,7 +29,7 @@ class TranslationModel:
         # Set up the prompt for LangChain
         self.prompt_template = ChatPromptTemplate.from_messages(
             [
-                ("system", "You are a helpful assistant. Answer all questions to the best of your ability in {language}. When answering questions about stocks, always use English terminology."),
+                ("system", "You are a helpful assistant. Answer all questions to the best of your ability in {language}. When answering questions about professional concepts, always use English terminology."),
                 MessagesPlaceholder(variable_name="history"),
                 ("human", "{question}"),
             ]
@@ -94,9 +94,10 @@ class TranslationModel:
             raise e
 
     async def _call_model(self, state: State):
-        """Asynchronously calls the model and processes the response.
-        When dealing with stock-related queries, it ensures to use English terms like 'stock price', 'market cap', 'dividends', etc.
-        """
+        """Asynchronously calls the model and processes the response. 
+        Generates a prompt based on the given state and conversation history, 
+        then calls the language model to receive a response."""
+
         past_messages = self.chat_message_history.messages
         all_messages = past_messages + state["messages"]
         last_human_message = next((msg.content for msg in reversed(all_messages) if isinstance(msg, HumanMessage)), None)

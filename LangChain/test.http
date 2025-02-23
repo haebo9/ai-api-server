@@ -10,46 +10,14 @@ Content-Type: application/json
 GET http://127.0.0.1:8000/chat?message=&session_id=test_session
 Content-Type: application/json
 
-### Test /translates endpoint - 정상적인 번역 (한국어 -> 영어)
-GET http://127.0.0.1:8000/translates?text=안녕하세요, 어떻게 지내세요?&language=en&session_id=translate_ko_en
+### 정상적인 번역 요청 (한국어)
+GET http://127.0.0.1:8000/translates?text=Hello,%20how%20are%20you?&language=ko&session_id=test_session
 Content-Type: application/json
 
-### Test /translates endpoint - 정상적인 번역 (영어 -> 한국어)
-GET http://127.0.0.1:8000/translates?text=Hello, how are you?&language=ko&session_id=translate_en_ko
+### 정상적인 번역 요청 (스페인어)
+GET http://127.0.0.1:8000/translates?text=This%20is%20a%20test.&language=es&session_id=another_session
 Content-Type: application/json
 
-### Test /translates endpoint - 정상적인 번역 (프랑스어 -> 영어)
-GET http://127.0.0.1:8000/translates?text=Bonjour, comment ça va?&language=en&session_id=translate_fr_en
-Content-Type: application/json
-
-### Test /translates endpoint - 정상적인 번역 (스페인어 -> 한국어)
-GET http://127.0.0.1:8000/translates?text=Hola, ¿cómo estás?&language=ko&session_id=translate_es_ko
-Content-Type: application/json
-
-### Test /translates endpoint - 빈 텍스트 번역
-GET http://127.0.0.1:8000/translates?text=&language=en&session_id=translate_empty
-Content-Type: application/json
-
-### Test /translates endpoint - 기본 파라미터 사용 (한국어 번역)
-GET http://127.0.0.1:8000/translates
-Content-Type: application/json
-
-### Test /translates endpoint - 긴 텍스트 번역 (한국어 -> 영어)
-GET http://127.0.0.1:8000/translates?text=이 문장은 매우 긴 문장입니다. 다양한 단어와 문장 구조를 포함하고 있으며, 번역기가 긴 문장을 얼마나 잘 처리하는지 테스트하기 위한 것입니다. 또한, 특수 문자나 숫자도 포함하여 번역의 정확성을 확인할 수 있습니다. 12345!@#$%^&*()&language=en&session_id=translate_long_ko_en
-Content-Type: application/json
-
-### Test /translates endpoint - 특수 문자 포함 번역
-GET http://127.0.0.1:8000/translates?text=This is a test with special characters: !@#$%^&*()_+=-`~[]{};':",./<>?&language=ko&session_id=translate_special_chars
-Content-Type: application/json
-
-### Test /translates endpoint - 숫자 포함 번역
-GET http://127.0.0.1:8000/translates?text=The number is 1234567890.&language=ko&session_id=translate_numbers
-Content-Type: application/json
-
-### Test /translates endpoint - 주식 관련 용어 번역 (영어 -> 한국어)
-GET http://127.0.0.1:8000/translates?text=What is the stock price of Apple Inc.?&language=ko&session_id=translate_stock_en_ko
-Content-Type: application/json
-
-### Test /translates endpoint - 주식 관련 용어 번역 (한국어 -> 영어)
-GET http://127.0.0.1:8000/translates?text=애플 주식의 시장 가치는 얼마입니까?&language=en&session_id=translate_stock_ko_en
+### 에러 케이스 (잘못된 언어 코드)
+GET http://127.0.0.1:8000/translates?text=Test&language=invalid
 Content-Type: application/json
